@@ -1,8 +1,6 @@
 import os
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_cohere import CohereEmbeddings
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from langchain_groq import ChatGroq
 from langchain_classic.chains import create_retrieval_chain
@@ -17,11 +15,14 @@ class FinancialRAG:
     def __init__(self):
         # Initialize Embeddings theo provider
         if config.EMBEDDING_PROVIDER == "cohere":
+            from langchain_cohere import CohereEmbeddings
+          
             self.embeddings = CohereEmbeddings(
                 cohere_api_key=config.COHERE_API_KEY,
                 model=config.COHERE_EMBEDDING_MODEL,
             )
         else:
+            from langchain_huggingface import HuggingFaceEmbeddings
             self.embeddings = HuggingFaceEmbeddings(
                 model_name=config.EMBEDDING_MODEL_NAME
             )
