@@ -225,19 +225,35 @@ class FinancialRAG:
             full_text = full_text[:max_chars] + "\n\n[Tài liệu đã được lược bớt một số trang giữa để tránh vượt giới hạn API]"
             
         prompt = f"""Bạn là một chuyên gia phân tích tài chính cao cấp (Financial Analyst).
-Nhiệm vụ của bạn là đọc toàn bộ văn bản báo cáo tài chính/bản cáo bạch dưới đây và viết một bản tóm tắt phân tích tài chính toàn diện, rõ ràng bằng tiếng Việt.
+Nhiệm vụ của bạn là đọc toàn bộ văn bản báo cáo tài chính/bản cáo bạch/tài liệu dưới đây và viết một bản tóm tắt phân tích tài chính toàn diện, rõ ràng bằng tiếng Việt.
 
-Yêu cầu tóm tắt:
-1. **Tổng quan doanh nghiệp:** Tên công ty, ngành nghề/lĩnh vực hoạt động chính.
-2. **Kết quả hoạt động kinh doanh:** Các số liệu tài chính cốt lõi (Doanh thu, Lợi nhuận trước/sau thuế, so sánh tăng trưởng nếu có).
-3. **Cấu trúc tài sản & Nguồn vốn:** Điểm đáng chú ý về tài sản ngắn/dài hạn, nợ phải trả, vốn chủ sở hữu.
-4. **Các điểm nhấn nổi bật & Rủi ro:** Các dự án lớn sắp triển khai, rủi ro tài chính hoặc thị trường nổi bật được đề cập.
-5. **Ý kiến kiểm toán (nếu có):** Ý kiến của kiểm toán viên đối với báo cáo.
+Hãy tự động nhận diện loại hình tổ chức (ví dụ: Ngân hàng, Doanh nghiệp sản xuất/thương mại/dịch vụ, Công ty chứng khoán, Công ty bảo hiểm, Tập đoàn đa ngành,...) và điều chỉnh nội dung tóm tắt cho phù hợp nhất với đặc thù ngành nghề đó. Hãy tập trung xoay quanh đúng thông tin có trong file báo cáo, không áp đặt một kịch bản cố định nếu tài liệu không phù hợp.
+
+Yêu cầu nội dung bản tóm tắt cần làm rõ:
+1. **Thông tin chung về tổ chức:** 
+   - Xác định rõ tên đầy đủ của tổ chức (Ngân hàng, Công ty, Tổng công ty, Tập đoàn,...) và loại hình hoạt động chính.
+   - Thời kỳ/Niên độ báo cáo (ví dụ: Quý 1/2024, Năm 2023,...).
+2. **Kết quả hoạt động kinh doanh:**
+   - Trình bày các chỉ số doanh thu/thu nhập và lợi nhuận cốt lõi phù hợp với ngành. 
+   - *Ví dụ đối với Doanh nghiệp thông thường:* Doanh thu thuần, Giá vốn, Lợi nhuận gộp, Lợi nhuận trước & sau thuế, các chỉ số tăng trưởng.
+   - *Ví dụ đối với Ngân hàng:* Thu nhập lãi thuần, Thu nhập ngoài lãi, Chi phí hoạt động, Chi phí dự phòng rủi ro tín dụng, Lợi nhuận trước & sau thuế.
+   - *Ví dụ đối với Công ty chứng khoán:* Doanh thu hoạt động (tự doanh, môi giới, cho vay ký quỹ), Chi phí hoạt động, Lợi nhuận.
+3. **Tình hình tài chính & Cấu trúc vốn:**
+   - Trình bày các khoản mục tài sản và nguồn vốn trọng yếu phù hợp nhất với loại hình hoạt động.
+   - *Ví dụ đối với Doanh nghiệp thông thường:* Tiền và tương đương tiền, Phải thu khách hàng, Hàng tồn kho, Tài sản cố định, Nợ phải trả (đặc biệt là nợ vay ngắn/dài hạn), Vốn chủ sở hữu.
+   - *Ví dụ đối với Ngân hàng:* Tổng tài sản, Cho vay khách hàng, Dự phòng rủi ro cho vay, Tiền gửi của khách hàng, Phát hành giấy tờ có giá, Tỷ lệ nợ xấu (NPL) nếu có, Vốn chủ sở hữu.
+4. **Điểm nhấn nổi bật & Rủi ro:**
+   - Các điểm đáng chú ý trong kỳ báo cáo (tăng trưởng đột biến, các biến động lớn về tài sản/nguồn vốn, dòng tiền, hoặc các dự án lớn).
+   - Rủi ro nổi bật (rủi ro thanh khoản, rủi ro nợ xấu, biến động lãi suất, tỷ giá, thị trường,...).
+5. **Ý kiến kiểm toán (nếu có):**
+   - Ý kiến của đơn vị kiểm toán độc lập (chấp nhận toàn phần, ngoại trừ, trái ngược, từ chối đưa ra ý kiến).
 
 Văn bản tài liệu:
 ---
 {full_text}
 ---
+
+Hãy viết bản tóm tắt một cách tự nhiên, mạch lạc, trực tiếp đi vào các số liệu của tổ chức trong tài liệu, sử dụng đúng thuật ngữ chuyên ngành tài chính của loại hình tổ chức đó.
 
 BẢN TÓM TẮT BÁO CÁO TÀI CHÍNH CHI TIẾT:"""
 
