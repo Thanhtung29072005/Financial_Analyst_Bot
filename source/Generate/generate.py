@@ -6,6 +6,7 @@ import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 import config
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from source.Function.utils import extract_law_name_from_filename
 
 def extract_entities_from_query(rag_engine, query: str):
     """Dùng LLM để trích xuất Điều, Chương và tên Luật từ câu hỏi của người dùng."""
@@ -139,11 +140,17 @@ def ask(rag_engine, question, chat_history, session_id=None):
     # 3. Ánh xạ law_name sang tên file nguồn trong Qdrant
     source_filter = None
     if entities.get("law_name"):
-        normalized_law_name = entities["law_name"].lower().replace(" ", "")
+        normalized_law_name = entities["law_name"].lower().replace(" ", "").replace("đ", "d")
         indexed_docs = rag_engine.get_indexed_documents()
         for doc_name in indexed_docs:
+            # So sánh với tên file thô
             normalized_doc = doc_name.lower().replace(" ", "")
-            if normalized_law_name in normalized_doc or normalized_doc in normalized_law_name:
+            # So sánh với law_name đã được làm sạch từ tên file (xử lý dấu gạch, viết hoa)
+            cleaned_law_name = extract_law_name_from_filename(doc_name).lower().replace(" ", "")
+            if (normalized_law_name in normalized_doc
+                    or normalized_doc in normalized_law_name
+                    or normalized_law_name in cleaned_law_name
+                    or cleaned_law_name in normalized_law_name):
                 source_filter = doc_name
                 break
     

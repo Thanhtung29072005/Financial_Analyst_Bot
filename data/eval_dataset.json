@@ -12,8 +12,8 @@
     "ground_truth": "Thời giờ làm việc của người lao động được quy định cụ thể tại Điều 104 của Bộ luật Lao động như sau:Thời giờ làm việc bình thường không quá 08 giờ trong 01 ngày và không quá 48 giờ trong 01 tuần."
   },
   {
-    "question": "Độ tuổi chịu trách nhiệm hình sự theo Bộ luật Bố luật Hình sự là bao nhiêu?",
-    "ground_truth": "Theo quy định tại Điều 12 của Bộ luật Hình sự: Người từ đủ 16 tuổi trở lên phải chịu trách nhiệm hình sự về mọi tội phạm, trừ những tội phạm mà Bộ luật này có quy định khác. Người từ đủ 14 tuổi đến dưới 16 tuổi phải chịu trách nhiệm hình sự về tội phạm rất nghiêm trọng hoặc tội phạm đặc biệt nghiêm trọng."
+    "question": "Theo Luật Doanh nghiệp, pháp luật quy định như thế nào về số lượng thành viên (hoặc cổ đông) đối với công ty trách nhiệm hữu hạn hai thành viên trở lên và công ty cổ phần?",
+    "ground_truth": "Theo Điều 47 và Điều 110 của Luật Doanh nghiệp, công ty trách nhiệm hữu hạn hai thành viên trở lên có số lượng thành viên tối đa không vượt quá 50 người, còn công ty cổ phần có số lượng cổ đông tối thiểu là 03 người và không bị hạn chế về số lượng tối đa"
   },
   {
     "question": "Ai được quyền thừa kế theo di chúc và theo pháp luật theo Bộ luật Dân sự?",

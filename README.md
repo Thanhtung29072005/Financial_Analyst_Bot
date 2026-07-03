@@ -7,7 +7,6 @@ The **Legal Advisory Chatbot System** is designed to assist users by answering q
 ## Demo
 ![alt text](<Screenshot 2026-06-30 091422.png>)
 
-
 ## Models & Technologies
 
 **LLM Model for Reasoning & Answering:**
@@ -35,9 +34,25 @@ The **Legal Advisory Chatbot System** is designed to assist users by answering q
 The core of the system relies on high-quality legal documents. The steps involved in data processing include:
 
 1. **Document Ingestion**: Parsing PDF documents using Python-based extractors to extract raw legal text.
-2. **Text Chunking**: Splitting documents into manageable segments (chunk size of `2000` characters with `300` overlap) to keep paragraphs and articles intact.
-3. **Vector Embeddings**: Converting text chunks into high-dimensional vector representations using Cohere or HuggingFace embeddings.
-4. **Vector Storage (Qdrant)**: Storing the vectors in Qdrant collections (`vietnamese_laws`) to enable rapid semantic similarity search.
+2. **Article-Aware Chunking**: Legal texts are intelligently split by **Điều (Article)** boundaries using regex detection, preserving the complete semantic unit of each law article. If an article is too long (> 1,500 characters), it is further split into sub-chunks while retaining the same `article` and `law_name` metadata for accurate filtering. Falls back to `RecursiveCharacterTextSplitter` (chunk size: `2000`, overlap: `300`) for non-structured documents.
+3. **Rich Metadata Enrichment**: Each chunk is tagged with structured metadata: `law_name`, `article`, `chapter`, `title`, `source` — enabling precise Qdrant metadata filtering during retrieval.
+4. **Vector Embeddings**: Converting text chunks into high-dimensional vector representations using Cohere or HuggingFace embeddings.
+5. **Vector Storage (Qdrant)**: Storing the vectors in Qdrant collections (`vietnamese_laws`) to enable rapid semantic similarity search.
+
+---
+
+## 📊 Evaluation Results (RAGAS)
+
+The RAG pipeline was evaluated using [RAGAS](https://docs.ragas.io/) on a curated set of Vietnamese law Q&A pairs.
+
+| Metric | Score |
+|---|---|
+| Faithfulness | **1.00** |
+| Answer Relevancy | **0.71** |
+| Context Precision | **0.83** |
+| Context Recall | **1.00** |
+
+> Evaluated with Groq `llama-3.3-70b-versatile` as judge LLM, Cohere `embed-multilingual-v3.0` for embeddings.
 
 ---
 

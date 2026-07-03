@@ -26,6 +26,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import config
 from source.Function.search_Qdrant import FinancialRAG
 from source.Generate.generate import rewrite_question, extract_entities_from_query, cohere_rerank, get_qa_chain
+from source.Function.utils import extract_law_name_from_filename
 from qdrant_client.models import Filter, FieldCondition, MatchValue
 from datasets import Dataset
 from ragas import evaluate, RunConfig
@@ -62,11 +63,17 @@ def query_rag_pipeline(rag_engine, question):
     # 3. Map law_name to document filename
     source_filter = None
     if entities.get("law_name"):
-        normalized_law_name = entities["law_name"].lower().replace(" ", "")
+        normalized_law_name = entities["law_name"].lower().replace(" ", "").replace("đ", "d")
         indexed_docs = rag_engine.get_indexed_documents()
         for doc_name in indexed_docs:
+            # So sánh với tên file thô
             normalized_doc = doc_name.lower().replace(" ", "")
-            if normalized_law_name in normalized_doc or normalized_doc in normalized_law_name:
+            # So sánh với law_name đã được làm sạch từ tên file
+            cleaned_law_name = extract_law_name_from_filename(doc_name).lower().replace(" ", "")
+            if (normalized_law_name in normalized_doc
+                    or normalized_doc in normalized_law_name
+                    or normalized_law_name in cleaned_law_name
+                    or cleaned_law_name in normalized_law_name):
                 source_filter = doc_name
                 break
                 
@@ -86,7 +93,7 @@ def query_rag_pipeline(rag_engine, question):
         raise ValueError("Vectorstore is empty or not loaded.")
         
     results = []
-    initial_k = 5
+    initial_k = config.RETRIEVER_K  # Đồng bộ với production (hiện tại = 7)
     try:
         results = rag_engine.vectorstore.similarity_search(
             query=rewritten_question,
