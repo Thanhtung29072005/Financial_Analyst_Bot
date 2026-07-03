@@ -5,7 +5,7 @@
 The **Legal Advisory Chatbot System** is designed to assist users by answering questions related to Vietnamese law. By leveraging advanced Retrieval-Augmented Generation (RAG) techniques, this system can analyze and retrieve relevant legal documents from an extensive collection of official Vietnamese legal texts. The core functionality of the chatbot includes providing users with accurate and up-to-date legal information, helping them understand complex legal terminology, and offering clear, actionable advice based on Vietnamese legal documents. This system is highly valuable for individuals, businesses, and legal professionals seeking quick access to legal knowledge.
 
 ## Demo
-![alt text](<Screenshot 2026-06-30 091422.png>)
+![alt text](images/demo.png)
 
 ## Models & Technologies
 
@@ -27,7 +27,7 @@ The **Legal Advisory Chatbot System** is designed to assist users by answering q
 - **Hybrid Search & Re-ranking**: Combines vector database retrieval with Cohere's state-of-the-art re-ranking engine to ensure high precision in retrieved laws.
 - **Dynamic PDF Uploading & Indexing**: Users can upload new legal PDF documents, which are automatically indexed into Qdrant, summarized, and integrated into the conversation context.
 - **Session History Management**: Full conversation history tracking stored in SQL Server, allowing users to switch between, delete, or resume previous chats.
-- **Interactive UI**: A sleek, modern, and fully responsive user interface built using HTML, modern CSS, and vanilla JS.
+
 
 ## Data Ingestion & Processing
 
