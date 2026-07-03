@@ -1,15 +1,20 @@
 import os
+import sys
 import glob
 import time
 from dotenv import load_dotenv
 
+# Thêm thư mục gốc (project root) vào sys.path để import config và source
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, ROOT_DIR)
+
 # Load env variables first
-load_dotenv()
+load_dotenv(os.path.join(ROOT_DIR, ".env"))
 
 import config
 
 def main():
-    laws_dir = os.path.join("data", "laws")
+    laws_dir = os.path.join(ROOT_DIR, "data", "laws")
     os.makedirs(laws_dir, exist_ok=True)
     
     # Lấy danh sách file PDF trong thư mục data/laws

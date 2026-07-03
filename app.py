@@ -1,5 +1,6 @@
 import os
 import shutil
+from contextlib import asynccontextmanager
 from typing import Optional
 from fastapi import FastAPI, Request, Form, File, UploadFile, HTTPException
 from fastapi.responses import HTMLResponse
@@ -14,21 +15,38 @@ load_dotenv(override=True)
 from source.Function.search_Qdrant import FinancialRAG
 from source.Database.db_connection import SQLDatabase
 
-app = FastAPI(title="Trợ lý Luật pháp Việt Nam AI")
+# Initialize Database (eager — lightweight, chỉ kết nối SQL)
+db = SQLDatabase()
+rag_engine: Optional[FinancialRAG] = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    FastAPI lifespan handler: khởi tạo RAG engine 1 lần duy nhất khi server start,
+    thay vì khởi tạo lần đầu khi có request (tránh làm chậm trang chủ).
+    """
+    global rag_engine
+    print("[*] Khởi tạo RAG Engine khi server start...")
+    rag_engine = FinancialRAG()
+    rag_engine.load_existing_db()
+    print("[*] RAG Engine sẵn sàng.")
+    yield
+    # Shutdown: cleanup nếu cần
+    print("[*] Server đang tắt.")
+
+
+app = FastAPI(title="Trợ lý Luật pháp Việt Nam AI", lifespan=lifespan)
 
 # Mount static files and templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# Initialize Database and lazy RAG Engine
-db = SQLDatabase()
-rag_engine = None
 
-def get_rag_engine():
-    global rag_engine
+def get_rag_engine() -> FinancialRAG:
+    """Trả về RAG engine đã được khởi tạo sẵn từ lifespan."""
     if rag_engine is None:
-        rag_engine = FinancialRAG()
-        rag_engine.load_existing_db()
+        raise RuntimeError("RAG engine chưa được khởi tạo.")
     return rag_engine
 
 
@@ -40,13 +58,15 @@ class QueryRequest(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     """Render the homepage."""
+    # rag_engine đã sẵn sàng từ lifespan — không còn khởi tạo ở đây nữa
+    has_vs = rag_engine is not None and rag_engine.vectorstore is not None
     return templates.TemplateResponse(
         request=request,
         name="index.html", 
         context={
             "use_db": True, 
             "db_error_msg": None,
-            "has_vectorstore": get_rag_engine().vectorstore is not None
+            "has_vectorstore": has_vs
         }
     )
 

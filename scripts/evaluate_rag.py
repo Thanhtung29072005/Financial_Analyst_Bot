@@ -4,11 +4,13 @@ import sys
 # Reconfigure stdout/stderr to support Vietnamese characters on Windows terminal
 if sys.stdout.encoding != 'utf-8':
     try:
+        # pyrefly: ignore [missing-attribute]
         sys.stdout.reconfigure(encoding='utf-8')
     except AttributeError:
         pass
 if sys.stderr.encoding != 'utf-8':
     try:
+        # pyrefly: ignore [missing-attribute]
         sys.stderr.reconfigure(encoding='utf-8')
     except AttributeError:
         pass
@@ -17,11 +19,12 @@ import json
 import pandas as pd
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv(override=True)
+# Thêm thư mục gốc (project root) vào sys.path để import config và source
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, ROOT_DIR)
 
-# Add parent directory to path to ensure imports work correctly
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# Load environment variables
+load_dotenv(os.path.join(ROOT_DIR, ".env"), override=True)
 
 import config
 from source.Function.search_Qdrant import FinancialRAG
@@ -93,7 +96,7 @@ def query_rag_pipeline(rag_engine, question):
         raise ValueError("Vectorstore is empty or not loaded.")
         
     results = []
-    initial_k = config.RETRIEVER_K  # Đồng bộ với production (hiện tại = 7)
+    initial_k = config.RETRIEVER_K  # Đồng bộ với production
     try:
         results = rag_engine.vectorstore.similarity_search(
             query=rewritten_question,
@@ -130,15 +133,9 @@ def query_rag_pipeline(rag_engine, question):
         "context": results
     })
     
-    # 8. Retrieve raw contexts
-    
-
+    # 8. Retrieve raw contexts (giới hạn độ dài để tiết kiệm token RAGAS)
     MAX_CONTEXT_LENGTH = 1200
-
-    contexts = [
-        doc.page_content[:MAX_CONTEXT_LENGTH]
-        for doc in results
-]
+    contexts = [doc.page_content[:MAX_CONTEXT_LENGTH] for doc in results]
     return answer, contexts
 
 def main():
@@ -146,8 +143,8 @@ def main():
     print("BẮT ĐẦU ĐÁNH GIÁ RAG PIPELINE BẰNG RAGAS")
     print("="*60)
     
-    # Load dataset
-    dataset_path = os.path.join("data", "eval_dataset.json")
+    # Load dataset (đường dẫn tuyệt đối từ ROOT_DIR)
+    dataset_path = os.path.join(ROOT_DIR, "data", "eval_dataset.json")
     if not os.path.exists(dataset_path):
         print(f"[!] Không tìm thấy file bộ dữ liệu tại: {dataset_path}")
         return
@@ -157,7 +154,7 @@ def main():
         
     print(f"[*] Đã tải thành công {len(eval_data)} câu hỏi kiểm thử.")
     
-    # RAG LLM: llama-3.1-8b-instant (nhẻ, nhanh cho pipeline)
+    # RAG LLM: llama-3.1-8b-instant (nhỏ, nhanh cho pipeline)
     from langchain_groq import ChatGroq
     rag_llm = ChatGroq(
        model="llama-3.1-8b-instant",
@@ -177,9 +174,8 @@ def main():
     rag_engine = FinancialRAG()
     rag_engine.llm = rag_llm  # Ghi đè LLM của RAG để chạy truy vấn và Entity Extraction
     if not rag_engine.load_existing_db():
-        print("[!] Không tìm thấy Vectorstore hiện tại. Đang thử nạp cơ sở dữ liệu luật...")
-        # Fallback to check if we can ingest laws or load
-        print("[!] Hãy chắc chắn rằng bạn đã chạy ingest_laws.py hoặc Qdrant đang lưu trữ các tài liệu.")
+        print("[!] Không tìm thấy Vectorstore hiện tại.")
+        print("[!] Hãy chắc chắn rằng bạn đã chạy scripts/ingest_laws.py hoặc Qdrant đang lưu trữ các tài liệu.")
         return
         
     questions = []
@@ -242,6 +238,7 @@ def main():
         )
         
         # Convert to pandas DataFrame
+        # pyrefly: ignore [missing-attribute]
         result_df = result.to_pandas()
         
         print("\n" + "="*60)
@@ -253,8 +250,8 @@ def main():
             print(f"  - {col:20}: {avg_score:.4f}")
         print("="*60)
         
-        # Save detailed logs
-        output_csv = os.path.join("data", "eval_results.csv")
+        # Save detailed logs (đường dẫn tuyệt đối)
+        output_csv = os.path.join(ROOT_DIR, "data", "eval_results.csv")
         result_df.to_csv(output_csv, index=False, encoding="utf-8-sig")
         print(f"[*] Đã xuất kết quả chi tiết từng câu hỏi tại: {output_csv}")
         
