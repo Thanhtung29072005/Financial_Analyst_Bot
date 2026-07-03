@@ -1,22 +1,22 @@
 [
   {
     "question": "Đất đai thuộc sở hữu của ai theo Luật Đất đai?",
-    "ground_truth": "Đất đai thuộc sở hữu toàn dân do Nhà nước đại diện chủ sở hữu và thống nhất quản lý."
+    "ground_truth": "Theo Điều 12 của Luật Đất đai, đất đai thuộc sở hữu toàn dân do Nhà nước đại diện chủ sở hữu và thống nhất quản lý. Theo đó, Nhà nước sẽ trao quyền sử dụng đất cho người sử dụng đất theo các quy định của Luật này"
   },
   {
     "question": "Độ tuổi đăng ký kết hôn theo Luật Hôn nhân và Gia đình Việt Nam quy định là bao nhiêu?",
-    "ground_truth": "Nam từ đủ 20 tuổi trở lên, nữ từ đủ 18 tuổi trở lên."
+    "ground_truth": "Theo Điều 8 của Luật Hôn nhân và gia đình, độ tuổi đăng ký kết hôn được quy định là nam từ đủ 20 tuổi trở lên và nữ từ đủ 18 tuổi trở lên."
   },
   {
     "question": "Thời giờ làm việc bình thường của người lao động được quy định như thế nào trong Bộ luật Lao động?",
-    "ground_truth": "Thời giờ làm việc bình thường không quá 08 giờ trong 01 ngày và không quá 48 giờ trong 01 tuần."
-  },
-  {
-    "question": "Thế nào là giao dịch dân sự vô hiệu theo Bộ luật Dân sự?",
-    "ground_truth": "Giao dịch dân sự không có một trong các điều kiện quy định tại Điều 117 của Bộ luật này thì vô hiệu, trừ trường hợp Bộ luật này có quy định khác."
+    "ground_truth": "Thời giờ làm việc của người lao động được quy định cụ thể tại Điều 104 của Bộ luật Lao động như sau:Thời giờ làm việc bình thường không quá 08 giờ trong 01 ngày và không quá 48 giờ trong 01 tuần."
   },
   {
     "question": "Độ tuổi chịu trách nhiệm hình sự theo Bộ luật Bố luật Hình sự là bao nhiêu?",
-    "ground_truth": "Người từ đủ 16 tuổi trở lên phải chịu trách nhiệm hình sự về mọi tội phạm, trừ những tội phạm mà Bộ luật này có quy định khác. Người từ đủ 14 tuổi đến dưới 16 tuổi phải chịu trách nhiệm hình sự về tội phạm rất nghiêm trọng hoặc tội phạm đặc biệt nghiêm trọng."
+    "ground_truth": "Theo quy định tại Điều 12 của Bộ luật Hình sự: Người từ đủ 16 tuổi trở lên phải chịu trách nhiệm hình sự về mọi tội phạm, trừ những tội phạm mà Bộ luật này có quy định khác. Người từ đủ 14 tuổi đến dưới 16 tuổi phải chịu trách nhiệm hình sự về tội phạm rất nghiêm trọng hoặc tội phạm đặc biệt nghiêm trọng."
+  },
+  {
+    "question": "Ai được quyền thừa kế theo di chúc và theo pháp luật theo Bộ luật Dân sự?",
+    "ground_truth": "Theo Điều 609 của Bộ luật Dân sự, người thừa kế theo di chúc là người được chỉ định trong di chúc. Người thừa kế theo pháp luật là những người được thừa kế theo hàng thừa kế quy định tại Điều 651 của Bộ luật này. Trong đó, hàng thừa kế bao gồm:Hàng thừa kế thứ nhất gồm vợ, chồng, cha đẻ, mẹ đẻ, cha nuôi, mẹ nuôi, con đẻ, con nuôi của người chết;Hàng thừa kế thứ hai gồm ông nội, bà nội, ông ngoại, bà ngoại, anh ruột, chị ruột, em ruột của người chết; cha đẻ, mẹ đẻ, cha nuôi, mẹ nuôi của người chết; con đẻ, con nuôi của người đã chết mà không còn sống thì được thừa kế theo hàng thừa kế thứ ba."
   }
 ]
