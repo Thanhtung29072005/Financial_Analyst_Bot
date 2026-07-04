@@ -47,10 +47,10 @@ The RAG pipeline was evaluated using [RAGAS](https://docs.ragas.io/) on a curate
 
 | Metric | Score |
 |---|---|
-| Faithfulness | **1.00** |
-| Answer Relevancy | **0.71** |
-| Context Precision | **0.83** |
-| Context Recall | **1.00** |
+| Faithfulness | **0.91** |
+| Answer Relevancy | **0.77** |
+| Context Precision | **0.81** |
+| Context Recall | **0.88** |
 
 > Evaluated with Groq `llama-3.3-70b-versatile` as judge LLM, Cohere `embed-multilingual-v3.0` for embeddings.
 

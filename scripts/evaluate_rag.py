@@ -240,7 +240,7 @@ def main():
         # Convert to pandas DataFrame
         # pyrefly: ignore [missing-attribute]
         result_df = result.to_pandas()
-        
+         
         print("\n" + "="*60)
         print("BẢNG ĐIỂM ĐÁNH GIÁ TRUNG BÌNH (AVERAGE RAGAS SCORES)")
         print("="*60)
