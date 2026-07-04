@@ -18,5 +18,13 @@
   {
     "question": "Ai được quyền thừa kế theo di chúc và theo pháp luật theo Bộ luật Dân sự?",
     "ground_truth": "Theo Điều 609 của Bộ luật Dân sự, người thừa kế theo di chúc là người được chỉ định trong di chúc. Người thừa kế theo pháp luật là những người được thừa kế theo hàng thừa kế quy định tại Điều 651 của Bộ luật này. Trong đó, hàng thừa kế bao gồm:Hàng thừa kế thứ nhất gồm vợ, chồng, cha đẻ, mẹ đẻ, cha nuôi, mẹ nuôi, con đẻ, con nuôi của người chết;Hàng thừa kế thứ hai gồm ông nội, bà nội, ông ngoại, bà ngoại, anh ruột, chị ruột, em ruột của người chết; cha đẻ, mẹ đẻ, cha nuôi, mẹ nuôi của người chết; con đẻ, con nuôi của người đã chết mà không còn sống thì được thừa kế theo hàng thừa kế thứ ba."
+  },
+  {
+    "question": "Theo Bộ luật Hình sự, người phạm tội gián điệp có thể được miễn trách nhiệm hình sự trong trường hợp nào?",
+    "ground_truth": "Theo Điều 110 của Bộ luật Hình sự, người đã nhận làm gián điệp nhưng không thực hiện nhiệm vụ được giao và tự thú, thành khẩn khai báo với cơ quan nhà nước có thẩm quyền thì sẽ được miễn trách nhiệm hình sự về tội này."
+  },
+  {
+    "question": "Theo Bộ luật Hình sự, mức phạt đối với hành vi giết người do vượt quá giới hạn phòng vệ chính đáng được quy định như thế nào?",
+    "ground_truth": "Theo Điều 126 của Bộ luật Hình sự, người nào giết người trong trường hợp vượt quá giới hạn phòng vệ chính đáng sẽ bị phạt cải tạo không giam giữ đến 02 năm hoặc phạt tù từ 03 tháng đến 02 năm. Trường hợp phạm tội đối với 02 người trở lên thì bị phạt tù từ 02 năm đến 05 năm."
   }
 ]
