@@ -53,14 +53,14 @@ from ragas.embeddings import LangchainEmbeddingsWrapper
 
 def query_rag_pipeline(rag_engine, question):
     """
-    Runs a query through the exact RAG pipeline to gather:
+    Runs a query through the full Hybrid RAG pipeline (Vector + BM25 + RRF + Rerank) to gather:
     - answer: The final generated response.
     - contexts: A list of raw text contents (page_content) of the retrieved/reranked documents.
     """
-    # 1. Rewrite the question to be standalone
+    # 1. Rewrite question
     rewritten_question = rewrite_question(rag_engine, question, chat_history=[])
     
-    # 2. Extract entities (law name, article, chapter)
+    # 2. Extract entities
     entities = extract_entities_from_query(rag_engine, rewritten_question)
     
     # 3. Map law_name to document filename
@@ -69,9 +69,7 @@ def query_rag_pipeline(rag_engine, question):
         normalized_law_name = entities["law_name"].lower().replace(" ", "").replace("đ", "d")
         indexed_docs = rag_engine.get_indexed_documents()
         for doc_name in indexed_docs:
-            # So sánh với tên file thô
             normalized_doc = doc_name.lower().replace(" ", "")
-            # So sánh với law_name đã được làm sạch từ tên file
             cleaned_law_name = extract_law_name_from_filename(doc_name).lower().replace(" ", "")
             if (normalized_law_name in normalized_doc
                     or normalized_doc in normalized_law_name
@@ -80,7 +78,7 @@ def query_rag_pipeline(rag_engine, question):
                 source_filter = doc_name
                 break
                 
-    # 4. Construct Qdrant filters
+    # 4. Qdrant filters
     must_conditions = []
     if source_filter:
         must_conditions.append(FieldCondition(key="metadata.source", match=MatchValue(value=source_filter)))
@@ -91,14 +89,14 @@ def query_rag_pipeline(rag_engine, question):
         
     qdrant_filter = Filter(must=must_conditions) if must_conditions else None
     
-    # 5. Vector similarity search
+    # 5. Vector search
     if not rag_engine.vectorstore:
         raise ValueError("Vectorstore is empty or not loaded.")
         
-    results = []
-    initial_k = config.RETRIEVER_K  # Đồng bộ với production
+    vector_results = []
+    initial_k = getattr(config, "VECTOR_K", 25)
     try:
-        results = rag_engine.vectorstore.similarity_search(
+        vector_results = rag_engine.vectorstore.similarity_search(
             query=rewritten_question,
             k=initial_k,
             filter=qdrant_filter
@@ -106,18 +104,29 @@ def query_rag_pipeline(rag_engine, question):
     except Exception as e:
         print(f"[!] Lỗi khi truy vấn vectorstore: {e}")
         
-    # 6. Fallback filters
-    if not results and qdrant_filter:
+    # 5a. Fallback vector search
+    if not vector_results and qdrant_filter:
         try:
             if source_filter:
                 relaxed_filter = Filter(must=[FieldCondition(key="metadata.source", match=MatchValue(value=source_filter))])
-                results = rag_engine.vectorstore.similarity_search(query=rewritten_question, k=initial_k, filter=relaxed_filter)
-            if not results:
-                results = rag_engine.vectorstore.similarity_search(query=rewritten_question, k=initial_k)
+                vector_results = rag_engine.vectorstore.similarity_search(query=rewritten_question, k=initial_k, filter=relaxed_filter)
+            if not vector_results:
+                vector_results = rag_engine.vectorstore.similarity_search(query=rewritten_question, k=initial_k)
         except Exception:
             pass
+
+    # 5b. BM25 keyword search
+    bm25_results = []
+    if hasattr(rag_engine, "bm25_store") and rag_engine.bm25_store:
+        bm25_k = getattr(config, "BM25_K", 25)
+        bm25_results = rag_engine.bm25_store.search(rewritten_question, k=bm25_k)
+
+    # 5c. Reciprocal Rank Fusion (RRF)
+    from source.Generate.generate import reciprocal_rank_fusion
+    rrf_k = getattr(config, "RRF_K", 60)
+    results = reciprocal_rank_fusion(vector_results, bm25_results, rrf_k=rrf_k)
             
-    # 6.5. Cohere Reranking
+    # 6. Cohere Reranking
     results = cohere_rerank(
         query=rewritten_question,
         documents=results,
@@ -133,7 +142,7 @@ def query_rag_pipeline(rag_engine, question):
         "context": results
     })
     
-    # 8. Retrieve raw contexts (giới hạn độ dài để tiết kiệm token RAGAS)
+    # 8. Retrieve raw contexts
     MAX_CONTEXT_LENGTH = 1200
     contexts = [doc.page_content[:MAX_CONTEXT_LENGTH] for doc in results]
     return answer, contexts
@@ -164,7 +173,7 @@ def main():
     # Eval LLM: llama-3.3-70b-versatile (chất lượng cao hơn để chấm điểm)
     # Dùng Groq thay Gemini để tránh free-tier quota (20 req/ngày)
     eval_llm = ChatGroq(
-        model="llama-3.3-70b-versatile",
+        model="llama-3.1-8b-instant",
         temperature=0,
         max_tokens=config.LLM_MAX_TOKENS
     )

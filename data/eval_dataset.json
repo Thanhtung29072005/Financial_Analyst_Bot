@@ -26,5 +26,25 @@
   {
     "question": "Theo Bộ luật Hình sự, mức phạt đối với hành vi giết người do vượt quá giới hạn phòng vệ chính đáng được quy định như thế nào?",
     "ground_truth": "Theo Điều 126 của Bộ luật Hình sự, người nào giết người trong trường hợp vượt quá giới hạn phòng vệ chính đáng sẽ bị phạt cải tạo không giam giữ đến 02 năm hoặc phạt tù từ 03 tháng đến 02 năm. Trường hợp phạm tội đối với 02 người trở lên thì bị phạt tù từ 02 năm đến 05 năm."
+  },
+  {
+    "question": "Tội phản bội Tổ quốc bị xử phạt như thế nào theo Bộ luật Hình sự?",
+    "ground_truth": "Theo khoản 1 Điều 108 của Bộ luật Hình sự, công dân Việt Nam nào câu kết với nước ngoài nhằm gây nguy hại cho độc lập, chủ quyền, thống nhất và toàn vẹn lãnh thổ của Tổ quốc, chế độ xã hội chủ nghĩa và Nhà nước Cộng hòa xã hội chủ nghĩa Việt Nam, tiềm lực quốc phòng, an ninh, thì bị phạt tù từ 12 năm đến 20 năm, tù chung thân hoặc tử hình"
+  },
+  {
+    "question": "Thời hiệu khởi kiện yêu cầu giải quyết tranh chấp hợp đồng được quy định là bao lâu theo Bộ luật Dân sự?",
+    "ground_truth": "Theo Điều 429 của Bộ luật Dân sự, thời hiệu khởi kiện để yêu cầu Tòa án giải quyết tranh chấp hợp đồng là 03 năm, kể từ ngày người có quyền yêu cầu biết hoặc phải biết quyền và lợi ích hợp pháp của mình bị xâm phạm."
+  },
+  {
+    "question": "Vốn điều lệ của công ty trách nhiệm hữu hạn hai thành viên trở lên khi đăng ký doanh nghiệp là gì?",
+    "ground_truth": "Theo khoản 1 Điều 48 của Luật Doanh nghiệp, vốn điều lệ của công ty trách nhiệm hữu hạn hai thành viên trở lên khi đăng ký doanh nghiệp là tổng giá trị phần vốn góp các thành viên cam kết góp vào công ty."
+  },
+  {
+    "question": "Quyền tự chủ trong giáo dục đại học được định nghĩa như thế nào?",
+    "ground_truth": "Theo khoản 2 Điều 3 của Luật Giáo dục đại học, quyền tự chủ là quyền được chủ động quyết định gắn với trách nhiệm giải trình theo quy định của pháp luật về chuyên môn học thuật, đào tạo, nghiên cứu khoa học, hợp tác quốc tế, cơ cấu tổ chức, nhân sự, tài chính và hoạt động giáo dục đại học khác."
+  },
+  {
+    "question": "Tài sản chung của vợ chồng trong thời kỳ hôn nhân bao gồm những tài sản nào?",
+    "ground_truth": "Theo Điều 33 của Luật Hôn nhân và gia đình, tài sản chung của vợ chồng gồm tài sản do vợ, chồng tạo ra, thu nhập do lao động, hoạt động sản xuất, kinh doanh, hoa lợi, lợi tức phát sinh từ tài sản riêng và thu nhập hợp pháp khác trong thời kỳ hôn nhân; tài sản mà vợ chồng được thừa kế chung hoặc được tặng cho chung và tài sản khác mà vợ chồng thỏa thuận là tài sản chung."
   }
 ]
