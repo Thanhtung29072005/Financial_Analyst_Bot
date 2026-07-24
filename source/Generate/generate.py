@@ -129,6 +129,57 @@ def cohere_rerank(query: str, documents: list, cohere_api_key: str, top_n: int =
         print(f"[!] Lỗi khi gọi Cohere Rerank API: {e}. Fallback sử dụng thứ tự từ vectorstore.")
         return documents[:top_n]
 
+def reciprocal_rank_fusion(
+    vector_results: list,
+    bm25_results: list,
+    rrf_k: int = 60
+) -> list:
+    """
+    Reciprocal Rank Fusion (Cormack et al. 2009) — kết hợp 2 danh sách kết quả
+    từ vector search và BM25 search thành một danh sách được sắp xếp theo RRF score.
+
+    Công thức: RRF(d) = Σ 1/(k + rank_i(d)) với k=60 (thường dùng theo paper gốc)
+
+    Args:
+        vector_results: Documents từ Qdrant similarity_search (thứ tự = rank)
+        bm25_results:   Documents từ BM25 search (thứ tự = rank)
+        rrf_k:          Hằng số RRF (mặc định 60)
+
+    Returns:
+        List[Document] sắp xếp theo RRF score giảm dần (deduped theo page_content).
+    """
+    from langchain_core.documents import Document
+
+    scores: dict[str, float] = {}   # key = page_content hash, value = RRF score
+    doc_map: dict[str, Document] = {}  # key = page_content hash, value = Document
+
+    for rank, doc in enumerate(vector_results):
+        key = doc.page_content
+        scores[key] = scores.get(key, 0.0) + 1.0 / (rrf_k + rank + 1)
+        if key not in doc_map:
+            doc_map[key] = doc
+            doc_map[key].metadata["rrf_sources"] = []
+        doc_map[key].metadata.setdefault("rrf_sources", []).append("vector")
+
+    for rank, doc in enumerate(bm25_results):
+        key = doc.page_content
+        scores[key] = scores.get(key, 0.0) + 1.0 / (rrf_k + rank + 1)
+        if key not in doc_map:
+            doc_map[key] = doc
+            doc_map[key].metadata["rrf_sources"] = []
+        doc_map[key].metadata.setdefault("rrf_sources", []).append("bm25")
+
+    # Sắp xếp theo RRF score giảm dần
+    sorted_keys = sorted(scores.keys(), key=lambda k: scores[k], reverse=True)
+    fused = []
+    for key in sorted_keys:
+        doc = doc_map[key]
+        doc.metadata["rrf_score"] = round(scores[key], 6)
+        fused.append(doc)
+
+    return fused
+
+
 def ask(rag_engine, question, chat_history, session_id=None):
     """Asks a question with history and returns the answer and sources."""
     # 1. Viết lại câu hỏi độc lập
@@ -184,14 +235,14 @@ def ask(rag_engine, question, chat_history, session_id=None):
         
     qdrant_filter = Filter(must=must_conditions) if must_conditions else None
     
-    # 5. Truy vấn tương đồng trong Vectorstore (lấy 25 ứng viên để rerank)
+    # 5. Vector search: truy vấn Qdrant (top VECTOR_K ứng viên)
     if not rag_engine.vectorstore:
         raise ValueError("Vectorstore not initialized.")
         
-    results = []
-    initial_k = 25
+    vector_results = []
+    initial_k = config.VECTOR_K
     try:
-        results = rag_engine.vectorstore.similarity_search(
+        vector_results = rag_engine.vectorstore.similarity_search(
             query=rewritten_question,
             k=initial_k,
             filter=qdrant_filter
@@ -199,8 +250,8 @@ def ask(rag_engine, question, chat_history, session_id=None):
     except Exception:
         pass
         
-    # 6. Fallback nếu không có kết quả với bộ lọc cứng
-    if not results and qdrant_filter:
+    # 5a. Fallback nếu không có kết quả với bộ lọc cứng
+    if not vector_results and qdrant_filter:
         try:
             if source_filter:
                 relaxed_filter = Filter(must=[
@@ -209,20 +260,30 @@ def ask(rag_engine, question, chat_history, session_id=None):
                         match=MatchValue(value=source_filter)
                     )
                 ])
-                results = rag_engine.vectorstore.similarity_search(
+                vector_results = rag_engine.vectorstore.similarity_search(
                     query=rewritten_question,
                     k=initial_k,
                     filter=relaxed_filter
                 )
-            if not results:
-                results = rag_engine.vectorstore.similarity_search(
+            if not vector_results:
+                vector_results = rag_engine.vectorstore.similarity_search(
                     query=rewritten_question,
                     k=initial_k
                 )
         except Exception:
             pass
-            
-    # 6.5 Áp dụng Cohere Reranking để chọn ra top_n tài liệu liên quan nhất
+
+    # 5b. BM25 keyword search (song song với vector search)
+    bm25_results = []
+    if hasattr(rag_engine, "bm25_store") and rag_engine.bm25_store:
+        bm25_k = getattr(config, "BM25_K", 25)
+        bm25_results = rag_engine.bm25_store.search(rewritten_question, k=bm25_k)
+
+    # 5c. Reciprocal Rank Fusion — merge vector + BM25 results
+    rrf_k = getattr(config, "RRF_K", 60)
+    results = reciprocal_rank_fusion(vector_results, bm25_results, rrf_k=rrf_k)
+
+    # 6. Cohere Reranking — chọn top_n tài liệu liên quan nhất từ merged results
     results = cohere_rerank(
         query=rewritten_question,
         documents=results,

@@ -30,9 +30,15 @@ LLM_MAX_TOKENS = 2048
 
 # Retrieval Settings
 # Tăng số lượng chunk trả về để có nhiều ngữ cảnh luật hơn
-RETRIEVER_K = 7
-RERANK_TOP_N = 5
+RETRIEVER_K = 7        # giữ lại cho backward-compat
+VECTOR_K = 25          # số docs lấy từ Qdrant vector search (cho hybrid)
+BM25_K = 25            # số docs lấy từ BM25 keyword search
+RRF_K = 60             # hằng số RRF theo paper (Cormack et al. 2009)
+RERANK_TOP_N = 7
 RERANK_MODEL = "rerank-multilingual-v3.0"
+
+# BM25 Index path (pickle file, lưu cạnh qdrant_db/)
+BM25_INDEX_PATH = os.path.join(os.path.dirname(__file__), "qdrant_db", "bm25_index.pkl")
 
 # SQL Server configurations 
 SQL_SERVER = os.getenv("SQL_SERVER", "localhost")

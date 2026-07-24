@@ -8,6 +8,7 @@ from langchain_qdrant import QdrantVectorStore
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from source.Function.utils import split_by_articles, extract_law_name_from_filename
+from source.Function.bm25_store import BM25Store
 
 class FinancialRAG:
     def __init__(self):
@@ -16,6 +17,8 @@ class FinancialRAG:
         self.embeddings = get_embeddings()
         self.client = get_qdrant_client()
         self.vectorstore = None
+        # BM25 store — load từ disk nếu có, hoặc bắt đầu mới
+        self.bm25_store = BM25Store.from_file(config.BM25_INDEX_PATH)
 
     def load_existing_db(self):
         """Loads an existing Qdrant DB if it exists."""
@@ -27,6 +30,8 @@ class FinancialRAG:
                     collection_name=config.COLLECTION_NAME, 
                     embedding=self.embeddings
                 )
+                # BM25 index đã được load trong __init__ — log trạng thái
+                print(f"[*] BM25 index: {len(self.bm25_store)} documents.")
                 return True
             except Exception:
                 pass
@@ -94,10 +99,17 @@ class FinancialRAG:
             embedding=self.embeddings
         )
         self.vectorstore.add_documents(splits)
+
+        # Thêm vào BM25 index (xóa docs cũ của file này trước để tránh duplicate)
+        self.bm25_store.delete_by_source(file_name)
+        self.bm25_store.add_documents(splits)
+        self.bm25_store.save(config.BM25_INDEX_PATH)
+        print(f"[*] BM25 index cập nhật: {len(self.bm25_store)} docs tổng cộng.")
+
         return len(splits)
 
     def delete_document(self, file_name):
-        """Xóa hoàn toàn một tài liệu khỏi cơ sở dữ liệu Qdrant và thư mục data/laws."""
+        """Xóa hoàn toàn một tài liệu khỏi cơ sở dữ liệu Qdrant, BM25 index và thư mục data/laws."""
         try:
             from qdrant_client.models import Filter, FieldCondition, MatchValue
             self.client.delete(
@@ -111,6 +123,11 @@ class FinancialRAG:
                     ]
                 )
             )
+            # Đồng bộ xóa khỏi BM25 index
+            removed = self.bm25_store.delete_by_source(file_name)
+            if removed > 0:
+                self.bm25_store.save(config.BM25_INDEX_PATH)
+
             file_path = os.path.join("data", "laws", file_name)
             if os.path.exists(file_path):
                 os.remove(file_path)
