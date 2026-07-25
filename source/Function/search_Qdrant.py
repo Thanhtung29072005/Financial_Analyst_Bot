@@ -183,3 +183,5 @@ class FinancialRAG:
     def ask(self, question, chat_history, session_id=None):
         from source.Generate.generate import ask
         return ask(self, question, chat_history, session_id)
+
+

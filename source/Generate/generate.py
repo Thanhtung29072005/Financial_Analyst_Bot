@@ -317,3 +317,6 @@ def ask(rag_engine, question, chat_history, session_id=None):
         
     sources = list(set(sources))
     return response, sources
+
+
+

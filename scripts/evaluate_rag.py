@@ -1,23 +1,15 @@
 import os
 import sys
-
-# Reconfigure stdout/stderr to support Vietnamese characters on Windows terminal
-if sys.stdout.encoding != 'utf-8':
-    try:
-        # pyrefly: ignore [missing-attribute]
-        sys.stdout.reconfigure(encoding='utf-8')
-    except AttributeError:
-        pass
-if sys.stderr.encoding != 'utf-8':
-    try:
-        # pyrefly: ignore [missing-attribute]
-        sys.stderr.reconfigure(encoding='utf-8')
-    except AttributeError:
-        pass
-
+import io
 import json
 import pandas as pd
 from dotenv import load_dotenv
+
+# Reconfigure stdout/stderr to support Vietnamese characters on Windows terminal
+if isinstance(sys.stdout, io.TextIOWrapper) and sys.stdout.encoding != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
+if isinstance(sys.stderr, io.TextIOWrapper) and sys.stderr.encoding != 'utf-8':
+    sys.stderr.reconfigure(encoding='utf-8')
 
 # Thêm thư mục gốc (project root) vào sys.path để import config và source
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -170,12 +162,12 @@ def main():
        temperature=0,
        max_tokens=config.LLM_MAX_TOKENS
     )
-    # Eval LLM: llama-3.3-70b-versatile (chất lượng cao hơn để chấm điểm)
-    # Dùng Groq thay Gemini để tránh free-tier quota (20 req/ngày)
-    eval_llm = ChatGroq(
-        model="llama-3.1-8b-instant",
-        temperature=0,
-        max_tokens=config.LLM_MAX_TOKENS
+    # Eval LLM: Dùng Gemini (gemini-3.6-flash) làm giám khảo chấm điểm RAGAS
+    from langchain_google_genai import ChatGoogleGenerativeAI
+    eval_llm = ChatGoogleGenerativeAI(
+        model="gemini-3.1-flash-lite",
+        google_api_key=os.getenv("GOOGLE_API_KEY"),
+        temperature=0
     )
 
     # Init RAG Engine

@@ -24,3 +24,7 @@ test_db/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# CSV benchmark & evaluation results
+*.csv
+data/*.csv

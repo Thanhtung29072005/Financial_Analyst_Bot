@@ -8,15 +8,15 @@ import sys
 import time
 import json
 import statistics
+import io
 import pandas as pd
 from dotenv import load_dotenv
 
 # Reconfigure stdout/stderr to support Vietnamese characters on Windows terminal
-if sys.stdout.encoding != 'utf-8':
-    try:
-        sys.stdout.reconfigure(encoding='utf-8')
-    except AttributeError:
-        pass
+if isinstance(sys.stdout, io.TextIOWrapper) and sys.stdout.encoding != 'utf-8':
+    sys.stdout.reconfigure(encoding='utf-8')
+if isinstance(sys.stderr, io.TextIOWrapper) and sys.stderr.encoding != 'utf-8':
+    sys.stderr.reconfigure(encoding='utf-8')
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT_DIR)

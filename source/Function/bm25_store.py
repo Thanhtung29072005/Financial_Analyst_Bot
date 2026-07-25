@@ -102,13 +102,8 @@ class BM25Store:
             for doc, tok in zip(self._docs, self._tokenized)
             if doc.metadata.get("source") != file_name
         ]
-        if filtered:
-            self._docs, self._tokenized = zip(*filtered)
-            self._docs = list(self._docs)
-            self._tokenized = list(self._tokenized)
-        else:
-            self._docs = []
-            self._tokenized = []
+        self._docs = [doc for doc, _ in filtered]
+        self._tokenized = [tok for _, tok in filtered]
 
         removed = original_count - len(self._docs)
         if removed > 0:

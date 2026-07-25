@@ -11,6 +11,7 @@ langchain-huggingface
 langchain-qdrant
 langchain-cohere
 langchain-classic
+langchain-google-genai
 
 groq
 sentence-transformers
